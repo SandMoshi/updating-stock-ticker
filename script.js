@@ -7,47 +7,47 @@ setInterval(grabAPIdata, 39000); //Grab new data every 10 sec
 
 function grabAPIdata (){
 		console.log("Now grabbing api data ... ");
-		var stocks = "NASDAQ:FB,NASDAQ:MSFT,NASDAQ:TSLA,NYSE:BRK.A,TSX:CNQ,NYSE:BABA,TSX:RY,TSX:CM,TSX:TD"
+		var stocks = "FB,MSFT,TSLA,BRK-A,CNQ,BABA,RY,CM,TD"
 
-		var queryString = "https://finance.google.com/finance/info?client=ig&q=" + stocks;
-	
+		var queryString = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D%27http%3A%2F%2Fdownload.finance.yahoo.com%2Fd%2Fquotes.csv%3Fs%3D"+ stocks +"%26f%3Dsl1d1t1c1ohgv%26e%3D.csv%27%20and%20columns%3D%27symbol%2Cprice%2Cdate%2Ctime%2Cchange%2Ccol1%2Chigh%2Clow%2Ccol2%27&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
+
 		$.ajax({
 			url: queryString,
 			dataType: "jsonp",
 			jsonpCallback: "jsonCallback"
-		});	
+		});
 }
 
 
 function jsonCallback(json){
-	var jsondata = json;
-	console.log(json);
+	var jsondata = json.query.results.row;
+	console.log(jsondata);
 	sortData(jsondata);
 }
 
 function sortData(jsondata){
 	for (var object in jsondata){
 		var object = jsondata[object];
-//		console.log(object.t);
+		console.log(object);
 	}
-	
+
 	var tickers = jsondata.map(function (object){
-		return [object.t];
+		return object.symbol;
 	});
 	var price = jsondata.map(function (object){
-		return object.l; 
+		return object.price;
 	});
 	var change = jsondata.map(function (object){
-		return object.c; 
+		return object.change;
 	});
-	
+
 	var tickerdata = jsondata.map(function (object){
-		return [object.t,object.l,object.c];
+		return [object.symbol,object.price,object.change];
 	});
-	
+
 //	console.log("var tickerdata = ");
-//	console.log(tickerdata);
-	
+	console.log(tickerdata);
+
 	injectData(tickerdata);
 }
 
@@ -73,7 +73,7 @@ function injectData(data){
 	ticker2text.innerHTML = ticker2String;
 //		console.log(ticker1text.innerHTML);
 //		console.log(ticker2text.innerHTML);
-	
+
 	updateTimeStamp();
 }
 
@@ -83,14 +83,14 @@ function updateTimeStamp(){
 //			console.log(b);
 	var c = new Date().toLocaleString();
 	console.log(c);
-	 
+
    // Change text in the DOM with new date
 	document.querySelector("#timestamp p").innerHTML= "Last Updated<br>" + c;
 };
 
 
 
-/*var stocks = 
+/*var stocks =
 		"NASDAQ:FB,NASDAQ:MSFT,NASDAQ:TSLA,HKG:0700,NYSE:BRK.A,TSX:CNQ,NYSE:BABA";
 var queryString = "https://finance.google.com/finance/info?client=ig&q=" + stocks;
 var xhr = new XMLHttpRequest();
@@ -114,5 +114,3 @@ xhr.open("GET",queryString,false);
 xhr.send();
 console.log(xhr.status);
 console.log(xhr.statusText);*/
-
-
